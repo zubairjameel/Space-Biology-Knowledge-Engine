@@ -1,1 +1,173 @@
-/* You can add global styles to this file, and also import other style files */
+/* Space Biology Knowledge Engine - Space Themed Styles */
+
+:root {
+  --sbk-bg: #050510;
+  --sbk-bg-elev: #0b0b1a;
+  --sbk-surface: #101024;
+  --sbk-border: #1c1c3a;
+  --sbk-text: #e6e8ff;
+  --sbk-text-dim: #aab0ff;
+  --sbk-primary: #6ea8ff;
+  --sbk-primary-strong: #4c86ff;
+  --sbk-accent: #a96bff;
+  --sbk-good: #4ade80;
+  --sbk-bad: #ff6b6b;
+  --sbk-shadow: 0 10px 30px rgba(0,0,0,.35), 0 2px 8px rgba(0,0,0,.3);
+}
+
+/* Reset */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  color: var(--sbk-text);
+  background: radial-gradient(1200px 800px at 10% 10%, #0b0b20 0%, #050510 40%, #02020a 100%);
+  overflow-y: auto;
+}
+
+/* Starfield layers */
+.sbk-stars, .sbk-stars::before, .sbk-stars::after {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  background-repeat: repeat;
+  background-size: 2000px 2000px;
+  z-index: 0;
+  animation: sbk-drift 120s linear infinite;
+}
+.sbk-stars {
+  background-image: radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,.7) 50%, transparent 51%),
+    radial-gradient(1px 1px at 100px 80px, rgba(255,255,255,.5) 50%, transparent 51%),
+    radial-gradient(1px 1px at 200px 50px, rgba(255,255,255,.4) 50%, transparent 51%),
+    radial-gradient(1px 1px at 300px 120px, rgba(255,255,255,.6) 50%, transparent 51%);
+}
+.sbk-stars::before {
+  background-image: radial-gradient(1px 1px at 60px 90px, rgba(255,255,255,.35) 50%, transparent 51%),
+    radial-gradient(1px 1px at 160px 140px, rgba(255,255,255,.3) 50%, transparent 51%),
+    radial-gradient(1px 1px at 260px 30px, rgba(255,255,255,.25) 50%, transparent 51%),
+    radial-gradient(1px 1px at 360px 200px, rgba(255,255,255,.25) 50%, transparent 51%);
+  animation-duration: 200s;
+}
+.sbk-stars::after {
+  background-image: radial-gradient(1px 1px at 40px 180px, rgba(255,255,255,.2) 50%, transparent 51%),
+    radial-gradient(1px 1px at 240px 100px, rgba(255,255,255,.2) 50%, transparent 51%),
+    radial-gradient(1px 1px at 480px 90px, rgba(255,255,255,.15) 50%, transparent 51%);
+  animation-duration: 280s;
+}
+
+@keyframes sbk-drift {
+  from { background-position: 0 0; }
+  to { background-position: -2000px 2000px; }
+}
+
+/* Layout */
+.sbk-container {
+  position: relative;
+  z-index: 1;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 4rem;
+}
+
+.sbk-title {
+  margin: 0 0 1rem 0;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: .2px;
+  background: linear-gradient(90deg, var(--sbk-primary), var(--sbk-accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Form */
+.sbk-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  align-items: flex-end;
+  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+  border: 1px solid var(--sbk-border);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: var(--sbk-shadow);
+}
+
+.sbk-field { display: flex; flex-direction: column; gap: .4rem; }
+.sbk-field-query { flex: 1 1 520px; }
+.sbk-field-topk { width: 120px; }
+
+.sbk-form label { color: var(--sbk-text-dim); font-size: .85rem; }
+.sbk-form input[type="text"],
+.sbk-form input[type="number"],
+.sbk-form input {
+  appearance: none;
+  outline: none;
+  border: 1px solid var(--sbk-border);
+  border-radius: 10px;
+  background: var(--sbk-surface);
+  color: var(--sbk-text);
+  padding: .65rem .75rem;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.sbk-form input:focus {
+  border-color: color-mix(in srgb, var(--sbk-primary) 60%, var(--sbk-border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sbk-primary) 20%, transparent);
+}
+
+.sbk-button {
+  appearance: none;
+  border: 1px solid transparent;
+  background: linear-gradient(90deg, var(--sbk-primary-strong), var(--sbk-accent));
+  color: #fff;
+  padding: .7rem 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform .08s ease, filter .15s ease;
+}
+.sbk-button:hover { filter: brightness(1.05); }
+.sbk-button:active { transform: translateY(1px); }
+.sbk-button:disabled { opacity: .6; cursor: not-allowed; }
+
+/* Status & Errors */
+.sbk-status { margin-top: 1rem; color: var(--sbk-text-dim); }
+.sbk-error {
+  margin-top: 1rem;
+  color: #ffd1d1;
+  background: linear-gradient(180deg, rgba(255,107,107,.12), rgba(255,107,107,.06));
+  border: 1px solid color-mix(in srgb, var(--sbk-bad) 50%, var(--sbk-border));
+  padding: .75rem 1rem;
+  border-radius: 10px;
+}
+
+/* Results */
+.sbk-results { margin-top: 1rem; }
+.sbk-results-title { margin: .25rem 0 .75rem; color: var(--sbk-text-dim); font-weight: 600; }
+
+.sbk-card {
+  border: 1px solid var(--sbk-border);
+  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: .85rem;
+  box-shadow: var(--sbk-shadow);
+}
+.sbk-card-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.sbk-card-title { color: var(--sbk-text); text-decoration: none; font-weight: 700; }
+.sbk-card-title:hover { color: var(--sbk-primary); }
+.sbk-score { color: var(--sbk-text-dim); font-size: .9rem; }
+.sbk-summary { margin: .5rem 0 0; line-height: 1.5; color: var(--sbk-text); }
+.sbk-actions { margin-top: .6rem; }
+.sbk-link { color: var(--sbk-primary); text-decoration: none; }
+.sbk-link:hover { text-decoration: underline; }
+
+/* Responsive */
+@media (max-width: 640px) {
+  .sbk-field-topk { width: 100%; max-width: 120px; }
+}
+
+/* Starfield element added at root for effect */
+body::before { content: ""; display: block; }
+/* Place star layers via extra element to keep z-index proper. */
