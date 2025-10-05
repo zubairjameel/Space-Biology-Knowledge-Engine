@@ -17,6 +17,20 @@ interface SearchResponse {
   error?: string;
 }
 
+interface TopicSummaryResponseSource {
+  title: string;
+  url: string;
+  summary: string;
+  similarity_score: number;
+}
+
+interface TopicSummaryResponse {
+  query?: string;
+  summary?: string;
+  sources?: TopicSummaryResponseSource[];
+  error?: string;
+}
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -33,6 +47,9 @@ export class AppComponent {
   loading = false;
   error: string | null = null;
   results: SearchResultItem[] = [];
+  // topic-summary state
+  topicSummary: string | null = null;
+  topicSources: TopicSummaryResponseSource[] = [];
 
   async doSearch() {
     const q = this.query?.trim();
@@ -54,6 +71,34 @@ export class AppComponent {
       this.results = resp?.results || [];
     } catch (e: any) {
       this.error = 'Failed to fetch results. Ensure backend is running on http://localhost:8000';
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  async getTopicSummary() {
+    const q = this.query?.trim();
+    if (!q) {
+      this.error = 'Please enter a topic to summarize.';
+      this.topicSummary = null;
+      this.topicSources = [];
+      return;
+    }
+    this.loading = true;
+    this.error = null;
+    this.topicSummary = null;
+    this.topicSources = [];
+    try {
+      const resp = await this.http.get<TopicSummaryResponse>(`/topic-summary`, {
+        params: { query: q, top_k: Math.max(this.topK, 3).toString() }
+      }).toPromise();
+      if (resp?.error) {
+        this.error = resp.error;
+      }
+      this.topicSummary = resp?.summary || null;
+      this.topicSources = resp?.sources || [];
+    } catch (e: any) {
+      this.error = 'Failed to fetch topic summary. Ensure backend is running on http://localhost:8000';
     } finally {
       this.loading = false;
     }

@@ -11,9 +11,13 @@
       <input id="topK" name="topK" type="number" min="1" max="10" [(ngModel)]="topK" />
     </div>
     <button class="sbk-button" type="submit" [disabled]="loading">Search</button>
+    <button class="sbk-button" type="button" (click)="getTopicSummary()" [disabled]="loading">Topic Summary</button>
   </form>
 
-  <div *ngIf="loading" class="sbk-status">Searching...</div>
+  <div *ngIf="loading" class="sbk-loading">
+    <div class="sbk-spinner"></div>
+    <div class="sbk-loading-text">Searching the cosmos…</div>
+  </div>
   <div *ngIf="error" class="sbk-error">{{ error }}</div>
 
   <div *ngIf="!loading && !error && results?.length" class="sbk-results">
@@ -27,6 +31,20 @@
       <div class="sbk-actions">
         <a class="sbk-link" [href]="r.url" target="_blank" rel="noopener">Open paper</a>
       </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && !error && topicSummary" class="sbk-results">
+    <h3 class="sbk-results-title">Current Research Summary</h3>
+    <p class="sbk-summary">{{ topicSummary }}</p>
+    <div *ngIf="topicSources?.length" class="sbk-sources">
+      <h4>Sources</h4>
+      <ul>
+        <li *ngFor="let s of topicSources">
+          <a [href]="s.url" target="_blank" rel="noopener">{{ s.title }}</a>
+          <span class="sbk-score" title="Similarity score">{{ s.similarity_score | number:'1.2-2' }}</span>
+        </li>
+      </ul>
     </div>
   </div>
 </div>

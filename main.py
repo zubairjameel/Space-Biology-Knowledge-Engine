@@ -178,6 +178,64 @@ class PublicationSearch:
         
         return results
     
+    def generate_topic_summary(self, query: str, top_k: int = 5) -> Dict:
+        """Generate an aggregated topic summary across top matching papers."""
+        if self.df is None:
+            return {"query": query, "summary": "No data loaded.", "sources": []}
+
+        top_results = self.search_papers(query, top_k)
+        if not top_results:
+            return {"query": query, "summary": "No relevant papers found.", "sources": []}
+
+        # Build an aggregated summary
+        try:
+            if hasattr(self, 'openai_client') and self.openai_client:
+                # Use paper titles and summaries to craft a concise meta-summary
+                paper_snippets = "\n".join([
+                    f"- {r['title']}: {r['summary']}" for r in top_results
+                ])
+                content = (
+                    f"Topic: {query}\n\nRecent findings across {len(top_results)} papers:\n{paper_snippets}"
+                )
+                response = self.openai_client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "system", "content": "You are a NASA space biology research assistant. Write a concise, factual, and up-to-date style summary from provided paper summaries. Avoid speculation."},
+                        {"role": "user", "content": f"Synthesize a 3-5 sentence summary of current research on: '{query}'. Emphasize consensus findings, notable mechanisms, and clear gaps.\n\n{content}"}
+                    ],
+                    max_tokens=250,
+                    temperature=0.3
+                )
+                aggregated_summary = response.choices[0].message.content.strip()
+            else:
+                # Rule-based meta-summary by stitching key pieces together
+                lead_in = f"Current research on {query} highlights findings across {len(top_results)} NASA-related papers."
+                key_points = []
+                for r in top_results:
+                    s = r.get("summary", "")
+                    if s:
+                        key_points.append(s.rstrip('.') + '.')
+                # Limit to the first few concise sentences
+                aggregated_summary = " ".join([lead_in] + key_points[:4])
+        except Exception:
+            aggregated_summary = f"Current research on {query} spans multiple studies with relevant findings in space biology contexts."
+
+        sources = [
+            {
+                "title": r.get("title", ""),
+                "url": r.get("url", ""),
+                "summary": r.get("summary", ""),
+                "similarity_score": r.get("similarity_score", 0.0)
+            }
+            for r in top_results
+        ]
+
+        return {
+            "query": query,
+            "summary": aggregated_summary,
+            "sources": sources
+        }
+
     def _generate_summary(self, paper: pd.Series, query: str) -> str:
         """Generate an intelligent summary for the paper"""
         if hasattr(self, 'openai_client') and self.openai_client:
@@ -338,6 +396,34 @@ async def search_publications(
         return {
             "error": f"Search failed: {str(e)}",
             "results": []
+        }
+
+@app.get("/topic-summary")
+async def topic_summary(
+    query: str = Query(..., description="Topic to summarize from current research"),
+    top_k: int = Query(5, description="Number of top papers to aggregate")
+):
+    """
+    Provide an aggregated summary of current research on a topic by synthesizing
+    summaries from the top relevant papers.
+    """
+    if search_engine.df is None:
+        return {
+            "error": "No data loaded. Please ensure the CSV file is available.",
+            "query": query,
+            "summary": "",
+            "sources": []
+        }
+
+    try:
+        result = search_engine.generate_topic_summary(query, top_k)
+        return result
+    except Exception as e:
+        return {
+            "error": f"Topic summary failed: {str(e)}",
+            "query": query,
+            "summary": "",
+            "sources": []
         }
 
 if __name__ == "__main__":

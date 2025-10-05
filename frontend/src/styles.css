@@ -164,6 +164,25 @@ body {
 .sbk-link { color: var(--sbk-primary); text-decoration: none; }
 .sbk-link:hover { text-decoration: underline; }
 
+/* Loading */
+.sbk-loading { display: flex; align-items: center; gap: .75rem; margin-top: 1rem; }
+.sbk-loading-text { color: var(--sbk-text-dim); }
+
+.sbk-spinner {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 3px solid color-mix(in srgb, var(--sbk-primary) 20%, transparent);
+  border-top-color: var(--sbk-primary);
+  border-right-color: color-mix(in srgb, var(--sbk-accent) 80%, transparent);
+  animation: sbk-spin 0.9s linear infinite;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--sbk-primary) 50%, transparent);
+}
+
+@keyframes sbk-spin {
+  to { transform: rotate(360deg); }
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .sbk-field-topk { width: 100%; max-width: 120px; }
